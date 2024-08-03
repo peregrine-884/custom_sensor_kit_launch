@@ -2,29 +2,31 @@
   <arg name="launch_driver" default="true"/>
 
   <group>
-    <push-ros-namespace namespace="imu"/>
+    <push-ros-namespace namespace="imu" />
 
     <group>
-      <push-ros-namespace namespace="tamagawa"/>
-      <node pkg="tamagawa_imu_driver" name="tag_serial_driver" exec="tag_serial_driver" if="$(var launch_driver)">
-        <remap from="imu/data_raw" to="imu_raw"/>
-        <param name="port" value="/dev/imu"/>
-        <param name="imu_frame_id" value="tamagawa/imu_link"/>
+      <push-ros-namespace namespace="xsens"/>
+      <!-- <arg name="bluespace_xsens_param_file" default="$(find-pkg-share bluespace_ai_xsens_mti_driver)/param/xsens_mti_node.yaml"/>
+      <node pkg="bluespace_ai_xsens_ros_mti_driver" name="xsens_mti_node" exec="xsens_mti_node" parameters="{bluspace_xsens_param_file}" /> -->
+
+      <node pkg="bluespace_ai_xsens_ros_mti_driver" name="xsens_mti_node" exec="xsens_mti_node"/>
+        <remap from="imu/data" to="imu_raw">
+        <param name="frame_id" value="xsens_imu_link"/>
       </node>
+
+      <arg name="imu_raw_name" default="xsens/imu_raw"/>
+      <arg name="imu_corrector_param_file" default="$(find-pkg-share individual_params)/config/$(var vehicle_id)/sample_sensor_kit/imu_corrector.param.yaml"/>
+      <include file="$(find-pkg-share imu_corrector)/launch/imu_corrector.launch.xml">
+        <arg name="input_topic" value="$(var imu_raw_name)"/>
+        <arg name="output_topic" value="imu_data"/>
+        <arg name="param_file" value="$(var imu_corrector_param_file)"/>
+      </include>
+
+      <include file="$(find-pkg-share imu_corrector)/launch/gyro_bias_estimator.launch.xml">
+        <arg name="input_imu_raw" value="$(var imu_raw_name)"/>
+        <arg name="input_odom" value="/localization/kinematic_state"/>
+        <arg name="imu_corrector_param_file" value="$(var imu_corrector_param_file)"/>
+      </include>
     </group>
-
-    <arg name="imu_raw_name" default="tamagawa/imu_raw"/>
-    <arg name="imu_corrector_param_file" default="$(find-pkg-share individual_params)/config/$(var vehicle_id)/sample_sensor_kit/imu_corrector.param.yaml"/>
-    <include file="$(find-pkg-share imu_corrector)/launch/imu_corrector.launch.xml">
-      <arg name="input_topic" value="$(var imu_raw_name)"/>
-      <arg name="output_topic" value="imu_data"/>
-      <arg name="param_file" value="$(var imu_corrector_param_file)"/>
-    </include>
-
-    <include file="$(find-pkg-share imu_corrector)/launch/gyro_bias_estimator.launch.xml">
-      <arg name="input_imu_raw" value="$(var imu_raw_name)"/>
-      <arg name="input_odom" value="/localization/kinematic_state"/>
-      <arg name="imu_corrector_param_file" value="$(var imu_corrector_param_file)"/>
-    </include>
   </group>
 </launch>

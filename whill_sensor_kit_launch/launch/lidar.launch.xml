@@ -11,7 +11,7 @@
 
     <group>
       <push-ros-namespace namespace="top"/>
-      <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
+      <include file="$(find-pkg-share common_whill_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_top"/>
         <arg name="sensor_ip" value="192.168.1.201"/>
@@ -24,7 +24,7 @@
       </include>
     </group>
 
-    <include file="$(find-pkg-share sample_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
+    <include file="$(find-pkg-share whill_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
       <arg name="base_frame" value="base_link"/>
       <arg name="use_intra_process" value="true"/>
       <arg name="use_multithread" value="true"/>
