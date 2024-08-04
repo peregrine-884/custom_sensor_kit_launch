@@ -36,7 +36,7 @@ def get_lidar_make(sensor_name):
         return "Velodyne", ".yaml"
     return "unrecognized_sensor_model"
 
-
+# TODO: 車両の情報を取得するが現在はなにも取得できていない
 def get_vehicle_info(context):
     # TODO(TIER IV): Use Parameter Substitution after we drop Galactic support
     # https://github.com/ros2/launch_ros/blob/master/launch_ros/launch_ros/substitutions/parameter.py
@@ -69,6 +69,11 @@ def launch_setup(context, *args, **kwargs):
             result[x] = LaunchConfiguration(x)
         return result
 
+# ************************************************************************************
+# sensor_component/external/nebula/nebula_decoders
+# ここにあるLidarのキャリブレーションパラメータを定義したファイルへのパスを取得
+# ************************************************************************************
+
     # Model and make
     sensor_model = LaunchConfiguration("sensor_model").perform(context)
     sensor_make, sensor_extension = get_lidar_make(sensor_model)
@@ -85,14 +90,24 @@ def launch_setup(context, *args, **kwargs):
         sensor_calib_fp
     ), "Sensor calib file under calibration/ was not found: {}".format(sensor_calib_fp)
 
+# ************************************************************************************
+# common_whill_sensor_launch/config/distortion_corrector_node.yamlを読み込む
+# allow_subsets=Trueなので、yamlファイルにlaunchファイルの変数の値を流すことができる
+# ************************************************************************************
+
     # Pointcloud preprocessor parameters
     distortion_corrector_node_param = ParameterFile(
         param_file=LaunchConfiguration("distortion_correction_node_param_path").perform(context),
         allow_substs=True,
     )
 
+# ************************************************************************************
+# 
+# ************************************************************************************
+
     nodes = []
 
+    # Googleのログライブラリ(glog)が初期化されていない場合に初期化を行う
     nodes.append(
         ComposableNode(
             package="glog_component",
@@ -101,6 +116,8 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
+    # velodyne_packetsからvelodyne_pointsを生成する
+    # extra_argumentsはノード起動時に追加の引数を渡すためのリスト
     nodes.append(
         ComposableNode(
             package="nebula_ros",
@@ -137,6 +154,7 @@ def launch_setup(context, *args, **kwargs):
     cropbox_parameters = create_parameter_dict("input_frame", "output_frame")
     cropbox_parameters["negative"] = True
 
+    # TODO: 値を取得できていない
     vehicle_info = get_vehicle_info(context)
     cropbox_parameters["min_x"] = vehicle_info["min_longitudinal_offset"]
     cropbox_parameters["max_x"] = vehicle_info["max_longitudinal_offset"]
@@ -145,6 +163,7 @@ def launch_setup(context, *args, **kwargs):
     cropbox_parameters["min_z"] = vehicle_info["min_height_offset"]
     cropbox_parameters["max_z"] = vehicle_info["max_height_offset"]
 
+    # 指定された範囲内にある点のみを残すクロップボックスフィルタ
     nodes.append(
         ComposableNode(
             package="autoware_pointcloud_preprocessor",
@@ -167,6 +186,7 @@ def launch_setup(context, *args, **kwargs):
     cropbox_parameters["min_z"] = mirror_info["min_height_offset"]
     cropbox_parameters["max_z"] = mirror_info["max_height_offset"]
 
+    # 指定された範囲内にある点のみを残すクロップボックスフィルタ
     nodes.append(
         ComposableNode(
             package="autoware_pointcloud_preprocessor",
@@ -181,6 +201,7 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
+    # pointcloudの歪み補正を実行する
     nodes.append(
         ComposableNode(
             package="autoware_pointcloud_preprocessor",
@@ -204,6 +225,8 @@ def launch_setup(context, *args, **kwargs):
         ring_outlier_filter_parameters = {
             "output_frame": ""
         }  # keep the output frame as the input frame
+
+    # pointcloud内のノイズや異常点を除去するためのフィルタリング
     nodes.append(
         ComposableNode(
             package="autoware_pointcloud_preprocessor",
@@ -228,6 +251,7 @@ def launch_setup(context, *args, **kwargs):
         output="both",
     )
 
+    # velodyneからデータを取得してvelodyne_packetsをpubする
     driver_component = ComposableNode(
         package="nebula_ros",
         plugin=sensor_make + "HwInterfaceRosWrapper",
@@ -274,7 +298,15 @@ def generate_launch_description():
             DeclareLaunchArgument(name, default_value=default_value, description=description)
         )
 
-    common_sensor_share_dir = get_package_share_directory("common_sensor_launch")
+    common_sensor_share_dir = get_package_share_directory("common_whill_sensor_launch")
+
+# ************************************************************************************
+# common_whill_sensor_launch velodyne_VLP16.launch.xml
+# whill_sensor_kit_launch lidar.launch.xml
+# whill_sensor_kit_launch sensing.launch.xml
+# tier4_sensing_launch sensing.launch.xml
+# autoware_launch tier4_sensing_component.launch.xml
+# ************************************************************************************
 
     add_launch_arg("sensor_model", description="sensor model name")
     add_launch_arg("config_file", "", description="sensor configuration file")
