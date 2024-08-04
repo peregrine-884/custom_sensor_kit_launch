@@ -38,11 +38,11 @@ def get_lidar_make(sensor_name):
 
 # TODO: 車両の情報を取得するが現在はなにも取得できていない
 def get_vehicle_info(context):
-    # TODO(TIER IV): Use Parameter Substitution after we drop Galactic support
-    # https://github.com/ros2/launch_ros/blob/master/launch_ros/launch_ros/substitutions/parameter.py
-    gp = context.launch_configurations.get("ros_params", {})
-    if not gp:
-        gp = dict(context.launch_configurations.get("global_params", {}))
+    path = LaunchConfiguration("vehicle_info_param_file").perform(context)
+    with open(path, "r") as f:
+        gp = yaml.safe_load(f)["/**"]["ros__parameters"]
+
+    # パラメータの計算
     p = {}
     p["vehicle_length"] = gp["front_overhang"] + gp["wheel_base"] + gp["rear_overhang"]
     p["vehicle_width"] = gp["wheel_tread"] + gp["left_overhang"] + gp["right_overhang"]
@@ -52,6 +52,7 @@ def get_vehicle_info(context):
     p["max_lateral_offset"] = gp["wheel_tread"] / 2.0 + gp["left_overhang"]
     p["min_height_offset"] = 0.0
     p["max_height_offset"] = gp["vehicle_height"]
+
     return p
 
 
