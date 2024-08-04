@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
   <arg name="launch_driver" default="true"/>
+  <arg name="vehicle_id" default="whill_sensor_kit">
 
   <group>
     <push-ros-namespace namespace="imu" />
@@ -8,6 +9,7 @@
     <group>
       <push-ros-namespace namespace="xsens"/>
 
+      <!-- frame_idをsensor_kit.xaxroで設定したものと同じにする -->
       <arg name="bluespace_xsens_param_file" default="$(find-pkg-share bluespace_ai_xsens_mti_driver)/param/xsens_mti_node.yaml"/>
       <node
         pkg="bluespace_ai_xsens_mti_driver"
@@ -19,14 +21,16 @@
         <param name="frame_id" value="xsens_imu_link"/>
       </node>
 
+      <!-- IMUセンサのデータを補正する -->
       <arg name="imu_raw_name" default="imu_raw"/>
-      <arg name="imu_corrector_param_file" default="$(find-pkg-share individual_params)/config/$(var vehicle_id)/sample_sensor_kit/imu_corrector.param.yaml"/>
+      <arg name="imu_corrector_param_file" default="$(find-pkg-share individual_params)/config/$(var vehicle_id)/whill_sensor_kit/imu_corrector.param.yaml"/>
       <include file="$(find-pkg-share imu_corrector)/launch/imu_corrector.launch.xml">
         <arg name="input_topic" value="$(var imu_raw_name)"/>
         <arg name="output_topic" value="imu_data"/>
         <arg name="param_file" value="$(var imu_corrector_param_file)"/>
       </include>
 
+      <!-- IMUデータの精度を向上させるために、ジャイロセンサーのバイアスをリアルタイムで推定し、補正する -->
       <include file="$(find-pkg-share imu_corrector)/launch/gyro_bias_estimator.launch.xml">
         <arg name="input_imu_raw" value="$(var imu_raw_name)"/>
         <arg name="input_odom" value="/localization/kinematic_state"/>
