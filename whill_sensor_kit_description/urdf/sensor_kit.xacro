@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="sensor_kit_macro" params="parent x y z roll pitch yaw">
+
+<!-- =====================================================================
+sensor_component/sensor_component_descriptionにxacroが定義してある
+====================================================================== -->
     <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
-    <xacro:include filename="$(find vls_description)/urdf/VLS-128.urdf.xacro"/>
-    <xacro:include filename="$(find camera_description)/urdf/monocular_camera.xacro"/>
     <xacro:include filename="$(find imu_description)/urdf/imu.xacro"/>
 
     <xacro:arg name="gpu" default="false"/>
@@ -11,6 +13,7 @@
 
     <xacro:property name="sensor_kit_base_link" default="sensor_kit_base_link"/>
 
+    <!-- baselink -> sensor_kit_base_link -->
     <joint name="${sensor_kit_base_link}_joint" type="fixed">
       <origin rpy="${roll} ${pitch} ${yaw}" xyz="${x} ${y} ${z}"/>
       <parent link="${parent}"/>
@@ -20,22 +23,29 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </link>
 
-    <!-- sensor -->
     <xacro:property name="calibration" value="${xacro.load_yaml('$(arg config_dir)/sensor_kit_calibration.yaml')}"/>
 
-    <!-- lidar -->
+<!-- =====================================================================
+sensor_kit_base_link -> velodyne_top_base_link -> velodyne_top
+velodyne_top_base_linkはlidarの一番下を原点とする座標系
+velodyne_topはレーザーを射出するところを原点とする座標系
+topic, hz, samples, gpuはgazeboで使用する値なので関係ない
+====================================================================== -->
     <xacro:VLP-16 parent="sensor_kit_base_link" name="velodyne_top" topic="/velodyne_points" hz="10" samples="220" gpu="$(arg gpu)">
       <origin
         xyz="${calibration['sensor_kit_base_link']['velodyne_top_base_link']['x']}
-             ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['y']}
-             ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['z']}"
+              ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['y']}
+              ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['z']}"
         rpy="${calibration['sensor_kit_base_link']['velodyne_top_base_link']['roll']}
-             ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['pitch']}
-             ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['yaw']}"
+              ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['pitch']}
+              ${calibration['sensor_kit_base_link']['velodyne_top_base_link']['yaw']}"
       />
     </xacro:VLP-16>
 
-    <!-- imu -->
+<!-- =====================================================================
+sensor_kit_base_link -> xsens_imu_link
+fpsはgazeboで使用されるので関係ない
+====================================================================== -->
     <xacro:imu_macro
       name="xsens_imu"
       parent="sensor_kit_base_link"

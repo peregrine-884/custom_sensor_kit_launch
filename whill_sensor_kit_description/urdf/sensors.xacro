@@ -15,3 +15,9 @@
     yaw="${calibration['base_link']['sensor_kit_base_link']['yaw']}"
   />
 </robot>
+
+<!-- =====================================================================
+tier4_vehicle_launch/urdf/vehicle.xacro
+tier4_vehicle_launch/launch/vehicle.launch.xml
+このxacroを使用したrobot_state_publisherを実行して、TF情報を流している
+====================================================================== -->
