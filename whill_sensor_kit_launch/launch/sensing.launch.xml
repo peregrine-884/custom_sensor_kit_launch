@@ -23,7 +23,7 @@ imuのdriver bluespace_ai_xsens_ros_mti_driverを追加した
     <!-- IMU Driver -->
     <include file="$(find-pkg-share whill_sensor_kit_launch)/launch/imu.launch.xml">
       <arg name="launch_driver" value="$(var launch_driver)"/>
-      <arg name="vehicle_id" value="$(var vehicle_id)">
+      <arg name="vehicle_id" value="$(var vehicle_id)"/>
     </include>
 
 <!-- ===========================================================================================

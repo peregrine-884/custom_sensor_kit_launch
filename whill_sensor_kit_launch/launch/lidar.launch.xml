@@ -32,7 +32,7 @@
       <arg name="use_intra_process" value="true"/>
       <arg name="use_multithread" value="true"/>
       <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
-      <arg name="use_concat_filter" value="$(var use_concat_filter)">
+      <arg name="use_concat_filter" value="$(var use_concat_filter)"/>
     </include>
   </group>
 </launch>

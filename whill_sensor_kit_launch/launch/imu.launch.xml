@@ -1,28 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <launch>
   <arg name="launch_driver" default="true"/>
-  <arg name="vehicle_id" default="whill_sensor_kit">
+  <arg name="vehicle_id" default="whill_sensor_kit"/>
 
   <group>
     <push-ros-namespace namespace="imu" />
 
     <group>
-      <push-ros-namespace namespace="xsens"/>
+      <arg name="imu_raw_name" default="imu_raw"/>
 
       <!-- frame_idをsensor_kit.xaxroで設定したものと同じにする -->
-      <arg name="bluespace_xsens_param_file" default="$(find-pkg-share bluespace_ai_xsens_mti_driver)/param/xsens_mti_node.yaml"/>
-      <node
-        pkg="bluespace_ai_xsens_mti_driver"
-        exec="xsens_mti_node"
-        name="xsens_mti_node"
-        output="screen">
-        <param name="parameter_file" value="$(var bluespace_xsens_param_file)"/>
-        <remap from="imu/data" to="imu_raw"/>
-        <param name="frame_id" value="xsens_imu_link"/>
-      </node>
+      <include file="$(find-pkg-share bluespace_ai_xsens_mti_driver)/launch/xsens_mti_node.launch.xml">
+        <arg name="input_topic" value="$(var imu_raw_name)"/>
+        <arg name="frame_id" value="xsens_imu_link"/>
+      </include>
 
       <!-- IMUセンサのデータを補正する -->
-      <arg name="imu_raw_name" default="imu_raw"/>
       <arg name="imu_corrector_param_file" default="$(find-pkg-share individual_params)/config/$(var vehicle_id)/whill_sensor_kit/imu_corrector.param.yaml"/>
       <include file="$(find-pkg-share imu_corrector)/launch/imu_corrector.launch.xml">
         <arg name="input_topic" value="$(var imu_raw_name)"/>
