@@ -4,12 +4,8 @@
     use_imu: true
     use_3d_distortion_correction: false
 
-# ************************************************************************************
 # スキャンが始まってから終わるまでの間に車両が移動する
 # この移動によって最初のデータポイントと最後のデータポイントの間の位置がずれて、歪みが発生する
 # IMUや速度データを利用して、補正する
-#
-# まったく同じparam fileがsensing/autoware_pointcloud_preprocessorに存在する
-# nebula_node_container.launch.pyとdistrotion_corrector_node.launch.xmlで読み込まれる
-# ************************************************************************************
+
 
