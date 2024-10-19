@@ -1,9 +1,3 @@
-<!-- ===================================================================
-autowareで使用するセンサーをすべて起動する
-imuのdriver bluespace_ai_xsens_ros_mti_driverを追加した
-==================================================================== -->
-
-
 <launch>
   <arg name="launch_driver" default="true" description="do launch driver"/>
   <arg name="vehicle_info_param_file" description="path to the file of vehicle position yaml"/>
