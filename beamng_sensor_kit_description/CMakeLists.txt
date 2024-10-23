@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(whill_sensor_kit_description)
+project(beamng_sensor_kit_description)
 
 find_package(ament_cmake_auto REQUIRED)
 
