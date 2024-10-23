@@ -5,21 +5,22 @@
 
   <group>
     <!-- LiDAR Driver -->
-    <include file="$(find-pkg-share beamng_sensor_kit_launch)/launch/lidar.launch.xml">
+    <!-- LiDARにIntensityの情報がないので起動しなくていい -->
+    <!-- <include file="$(find-pkg-share beamng_sensor_kit_launch)/launch/lidar.launch.xml">
       <arg name="vehicle_info_param_file" value="$(var vehicle_info_param_file)"/>
       <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
       <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
-    </include>
+    </include> -->
 
     <!-- IMU Driver -->
     <include file="$(find-pkg-share beamng_sensor_kit_launch)/launch/imu.launch.xml">
     </include>
 
-<!-- ===========================================================================================
-velocity_statusをsubしてtwist_with_covarianceをpubする
-それぞれのメッセージの型は
-autoware_vehicle_msgs::msg::VelocityReport, geometry_msgs::msg::TwistWithCovarianceStamped
-============================================================================================ -->
+    <!-- ===========================================================================================
+    velocity_statusをsubしてtwist_with_covarianceをpubする
+    それぞれのメッセージの型は
+    autoware_vehicle_msgs::msg::VelocityReport, geometry_msgs::msg::TwistWithCovarianceStamped
+    ============================================================================================ -->
     <include file="$(find-pkg-share vehicle_velocity_converter)/launch/vehicle_velocity_converter.launch.xml">
       <arg name="input_vehicle_velocity_topic" value="/vehicle/status/velocity_status"/>
       <arg name="output_twist_with_covariance" value="/sensing/vehicle_velocity_converter/twist_with_covariance"/>
