@@ -25,7 +25,7 @@
     </group
 
     <!-- 複数のLiDARセンサーから取得した点群データを同期し、1つの点群データに結合する -->
-    <include file="$(find-pkg-share whill_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
+    <include file="$(find-pkg-share beamng_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
       <arg name="base_frame" value="$(var base_frame)"/>
       <arg name="use_intra_process" value="$(var use_intra_process)"/>
       <arg name="use_multithread" value="$(var use_multithread)"/>
