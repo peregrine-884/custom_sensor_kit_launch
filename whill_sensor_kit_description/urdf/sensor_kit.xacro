@@ -2,9 +2,6 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="sensor_kit_macro" params="parent x y z roll pitch yaw">
 
-<!-- =====================================================================
-sensor_component/sensor_component_descriptionにxacroが定義してある
-====================================================================== -->
     <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
     <xacro:include filename="$(find imu_description)/urdf/imu.xacro"/>
 
@@ -13,7 +10,9 @@ sensor_component/sensor_component_descriptionにxacroが定義してある
 
     <xacro:property name="sensor_kit_base_link" default="sensor_kit_base_link"/>
 
-    <!-- baselink -> sensor_kit_base_link -->
+<!-- =====================================================================
+base_link -> sensor_kit_base_link のTFを定義
+====================================================================== -->
     <joint name="${sensor_kit_base_link}_joint" type="fixed">
       <origin rpy="${roll} ${pitch} ${yaw}" xyz="${x} ${y} ${z}"/>
       <parent link="${parent}"/>
@@ -26,7 +25,7 @@ sensor_component/sensor_component_descriptionにxacroが定義してある
     <xacro:property name="calibration" value="${xacro.load_yaml('$(arg config_dir)/sensor_kit_calibration.yaml')}"/>
 
 <!-- =====================================================================
-sensor_kit_base_link -> velodyne_top_base_link -> velodyne_top
+sensor_kit_base_link -> velodyne_top_base_link -> velodyne_top のTFを定義
 velodyne_top_base_linkはlidarの一番下を原点とする座標系
 velodyne_topはレーザーを射出するところを原点とする座標系
 topic, hz, samples, gpuはgazeboで使用する値なので関係ない
@@ -43,7 +42,7 @@ topic, hz, samples, gpuはgazeboで使用する値なので関係ない
     </xacro:VLP-16>
 
 <!-- =====================================================================
-sensor_kit_base_link -> xsens_imu_link
+sensor_kit_base_link -> xsens_imu_link のTFを定義
 fpsはgazeboで使用されるので関係ない
 ====================================================================== -->
     <xacro:imu_macro

@@ -1,9 +1,3 @@
-<!-- ===================================================================
-autowareで使用するセンサーをすべて起動する
-imuのdriver bluespace_ai_xsens_ros_mti_driverを追加した
-==================================================================== -->
-
-
 <launch>
   <arg name="launch_driver" default="true" description="do launch driver"/>
   <arg name="vehicle_info_param_file" description="path to the file of vehicle position yaml"/>
@@ -26,11 +20,6 @@ imuのdriver bluespace_ai_xsens_ros_mti_driverを追加した
       <arg name="vehicle_id" value="$(var vehicle_id)"/>
     </include>
 
-<!-- ===========================================================================================
-velocity_statusをsubしてtwist_with_covarianceをpubする
-それぞれのメッセージの型は
-autoware_vehicle_msgs::msg::VelocityReport, geometry_msgs::msg::TwistWithCovarianceStamped
-============================================================================================ -->
     <include file="$(find-pkg-share vehicle_velocity_converter)/launch/vehicle_velocity_converter.launch.xml">
       <arg name="input_vehicle_velocity_topic" value="/vehicle/status/velocity_status"/>
       <arg name="output_twist_with_covariance" value="/sensing/vehicle_velocity_converter/twist_with_covariance"/>

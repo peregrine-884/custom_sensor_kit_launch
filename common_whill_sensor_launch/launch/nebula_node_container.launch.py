@@ -28,7 +28,7 @@ from launch_ros.descriptions import ComposableNode
 from launch_ros.parameter_descriptions import ParameterFile
 import yaml
 
-
+# lidarのキャリブレーションファイルに関する情報を取得
 def get_lidar_make(sensor_name):
     if sensor_name[:6].lower() == "pandar":
         return "Hesai", ".csv"
@@ -36,7 +36,6 @@ def get_lidar_make(sensor_name):
         return "Velodyne", ".yaml"
     return "unrecognized_sensor_model"
 
-# TODO: 車両の情報を取得するが現在はなにも取得できていない
 def get_vehicle_info(context):
     path = LaunchConfiguration("vehicle_info_param_file").perform(context)
     with open(path, "r") as f:
@@ -70,11 +69,6 @@ def launch_setup(context, *args, **kwargs):
             result[x] = LaunchConfiguration(x)
         return result
 
-# ************************************************************************************
-# sensor_component/external/nebula/nebula_decoders
-# ここにあるLidarのキャリブレーションパラメータを定義したファイルへのパスを取得
-# ************************************************************************************
-
     # Model and make
     sensor_model = LaunchConfiguration("sensor_model").perform(context)
     sensor_make, sensor_extension = get_lidar_make(sensor_model)
@@ -91,20 +85,11 @@ def launch_setup(context, *args, **kwargs):
         sensor_calib_fp
     ), "Sensor calib file under calibration/ was not found: {}".format(sensor_calib_fp)
 
-# ************************************************************************************
-# common_whill_sensor_launch/config/distortion_corrector_node.yamlを読み込む
-# allow_subsets=Trueなので、yamlファイルにlaunchファイルの変数の値を流すことができる
-# ************************************************************************************
-
     # Pointcloud preprocessor parameters
     distortion_corrector_node_param = ParameterFile(
         param_file=LaunchConfiguration("distortion_correction_node_param_path").perform(context),
         allow_substs=True,
     )
-
-# ************************************************************************************
-# 
-# ************************************************************************************
 
     nodes = []
 
@@ -155,7 +140,6 @@ def launch_setup(context, *args, **kwargs):
     cropbox_parameters = create_parameter_dict("input_frame", "output_frame")
     cropbox_parameters["negative"] = True
 
-    # TODO: 値を取得できていない
     vehicle_info = get_vehicle_info(context)
     cropbox_parameters["min_x"] = vehicle_info["min_longitudinal_offset"]
     cropbox_parameters["max_x"] = vehicle_info["max_longitudinal_offset"]
@@ -301,41 +285,8 @@ def generate_launch_description():
 
     common_sensor_share_dir = get_package_share_directory("common_whill_sensor_launch")
 
-# ************************************************************************************
-# common_whill_sensor_launch velodyne_VLP16.launch.xml
-# whill_sensor_kit_launch lidar.launch.xml
-# whill_sensor_kit_launch sensing.launch.xml
-# tier4_sensing_launch sensing.launch.xml
-# autoware_launch tier4_sensing_component.launch.xml
-# ************************************************************************************
-
-    add_launch_arg("sensor_model", description="sensor model name")
-    add_launch_arg("config_file", "", description="sensor configuration file")
-    add_launch_arg("launch_driver", "True", "do launch driver")
-    add_launch_arg("setup_sensor", "True", "configure sensor")
-    add_launch_arg("sensor_ip", "192.168.1.201", "device ip address")
-    add_launch_arg("host_ip", "255.255.255.255", "host ip address")
-    add_launch_arg("scan_phase", "0.0")
-    add_launch_arg("base_frame", "base_link", "base frame id")
-    add_launch_arg("min_range", "0.3", "minimum view range for Velodyne sensors")
-    add_launch_arg("max_range", "300.0", "maximum view range for Velodyne sensors")
-    add_launch_arg("cloud_min_angle", "0", "minimum view angle setting on device")
-    add_launch_arg("cloud_max_angle", "360", "maximum view angle setting on device")
-    add_launch_arg("data_port", "2368", "device data port number")
-    add_launch_arg("gnss_port", "2380", "device gnss port number")
-    add_launch_arg("packet_mtu_size", "1500", "packet mtu size")
-    add_launch_arg("rotation_speed", "600", "rotational frequency")
-    add_launch_arg("dual_return_distance_threshold", "0.1", "dual return distance threshold")
-    add_launch_arg("frame_id", "lidar", "frame id")
-    add_launch_arg("input_frame", LaunchConfiguration("base_frame"), "use for cropbox")
-    add_launch_arg("output_frame", LaunchConfiguration("base_frame"), "use for cropbox")
-    add_launch_arg("use_multithread", "False", "use multithread")
-    add_launch_arg("use_intra_process", "False", "use ROS 2 component container communication")
-    add_launch_arg("lidar_container_name", "nebula_node_container")
-    add_launch_arg("output_as_sensor_frame", "True", "output final pointcloud in sensor frame")
-    add_launch_arg(
-        "vehicle_mirror_param_file", description="path to the file of vehicle mirror position yaml"
-    )
+    # velodyeからvelodyne_packetsを生成するノードのパラメータ
+    add_launch_arg("sensor_model")
     add_launch_arg(
         "distortion_correction_node_param_path",
         os.path.join(
@@ -345,7 +296,78 @@ def generate_launch_description():
         ),
         description="path to parameter file of distortion correction node",
     )
+    add_launch_arg("sensor_ip")
+    add_launch_arg("host_ip")
+    add_launch_arg("scan_phase")
+    add_launch_arg("return_mode")
+    add_launch_arg("frame_id")
+    add_launch_arg("rotation_speed", "600", "rotational frequency")
+    add_launch_arg("data_port")
+    add_launch_arg("gnss_port", "2380", "device gnss port number")
+    add_launch_arg("cloud_min_angle")
+    add_launch_arg("cloud_max_angle")
+    add_launch_arg("packet_mtu_size", "1500", "packet mtu size")
+    add_launch_arg("dual_return_distance_threshold", "0.1", "dual return distance threshold")
+    add_launch_arg("setup_sensor", "True", "configure sensor")
 
+    # velodyne_packetsからvelodyne_pointsを生成するノードのパラメータ
+    add_launch_arg("min_range")
+    add_launch_arg("max_range")
+    # add_launch_arg("sensor_model")
+    # add_launch_arg(
+    #     "distortion_correction_node_param_path",
+    #     os.path.join(
+    #         common_sensor_share_dir,
+    #         "config",
+    #         "distortion_corrector_node.param.yaml",
+    #     ),
+    #     description="path to parameter file of distortion correction node",
+    # )
+    # add_launch_arg("sensor_ip")
+    # add_launch_arg("host_ip")
+    # add_launch_arg("scan_phase")
+    # add_launch_arg("return_mode")
+    # add_launch_arg("frame_id")
+    # add_launch_arg("data_port")
+    # add_launch_arg("cloud_min_angle")
+    # add_launch_arg("cloud_max_angle")
+    # add_launch_arg("dual_return_distance_threshold", "0.1", "dual return distance threshold")
+
+    # 車両の範囲内にある点群を削除するノードのパラメータ
+    add_launch_arg("base_frame", "base_link", "base frame id")
+    add_launch_arg("input_frame", LaunchConfiguration("base_frame"), "use for cropbox")
+    add_launch_arg("output_frame", LaunchConfiguration("base_frame"), "use for cropbox")
+    add_launch_arg("vehicle_info_param_file")
+    add_launch_arg("use_intra_process")
+
+    # 車両のミラーの範囲内にある点群を削除するノードのパラメータ
+    add_launch_arg("vehicle_mirror_param_file")
+    # add_launch_arg("base_frame", "base_link", "base frame id")
+    # add_launch_arg("input_frame", LaunchConfiguration("base_frame"), "use for cropbox")
+    # add_launch_arg("output_frame", LaunchConfiguration("base_frame"), "use for cropbox")
+    # add_launch_arg("use_intra_process")
+
+    # pointcloudの歪み補正を実行するノードのパラメータ
+    # add_launch_arg(
+    #     "distortion_correction_node_param_path",
+    #     os.path.join(
+    #         common_sensor_share_dir,
+    #         "config",
+    #         "distortion_corrector_node.param.yaml",
+    #     ),
+    #     description="path to parameter file of distortion correction node",
+    # )
+
+    # pointcloud内のノイズや異常点の除去を行うノードのパラメータ
+    add_launch_arg("output_as_sensor_frame", "True", "output final pointcloud in sensor frame")
+    # add_launch_arg("frame_id")
+
+    # containerに関するparam
+    add_launch_arg("launch_driver")
+    add_launch_arg("use_multithread")
+    add_launch_arg("container_name")
+
+    # container_executableに値を設定する
     set_container_executable = SetLaunchConfiguration(
         "container_executable",
         "component_container",

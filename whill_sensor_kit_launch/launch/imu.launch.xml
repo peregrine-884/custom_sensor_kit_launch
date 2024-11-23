@@ -6,12 +6,11 @@
     <push-ros-namespace namespace="imu" />
 
     <group>
-      <arg name="imu_raw_name" default="imu_raw"/>
+      <arg name="imu_raw_name" default="/imu/data"/>
 
-      <!-- frame_idをsensor_kit.xaxroで設定したものと同じにする -->
-      <include file="$(find-pkg-share bluespace_ai_xsens_mti_driver)/launch/xsens_mti_node.launch.xml">
-        <arg name="input_topic" value="$(var imu_raw_name)"/>
-        <arg name="frame_id" value="xsens_imu_link"/>
+      <!-- IMUドライバー -->
+      <!-- frame_idをsensor_kit.xacroで設定したものと同じにする -->
+      <include file="$(find-pkg-share bluespace_ai_xsens_mti_driver)/launch/xsens_mti_node.launch.py">
       </include>
 
       <!-- IMUセンサのデータを補正する -->
