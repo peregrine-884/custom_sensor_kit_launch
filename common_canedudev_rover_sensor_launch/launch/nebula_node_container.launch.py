@@ -283,7 +283,7 @@ def generate_launch_description():
             DeclareLaunchArgument(name, default_value=default_value, description=description)
         )
 
-    common_sensor_share_dir = get_package_share_directory("common_whill_sensor_launch")
+    common_sensor_share_dir = get_package_share_directory("common_canedudev_rover_sensor_launch")
 
     # velodyeからvelodyne_packetsを生成するノードのパラメータ
     add_launch_arg("sensor_model")

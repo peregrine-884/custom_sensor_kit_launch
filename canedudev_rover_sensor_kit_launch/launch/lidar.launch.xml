@@ -20,7 +20,7 @@
 
     <group>
       <push-ros-namespace namespace="top"/>
-      <include file="$(find-pkg-share common_whill_sensor_launch)/launch/velodyne_VLP16.launch.xml">
+      <include file="$(find-pkg-share common_canedudev_rover_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="host_ip" value="$(var host_ip)"/>
         <arg name="sensor_ip" value="$(var sensor_ip)"/>
         <arg name="data_port" value="$(var data_port)"/>
@@ -36,7 +36,7 @@
     </group>
 
     <!-- 複数のLiDARセンサーから取得した点群データを同期し、1つの点群データに結合する -->
-    <include file="$(find-pkg-share whill_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
+    <include file="$(find-pkg-share canedudev_rover_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
       <arg name="base_frame" value="$(var base_frame)"/>
       <arg name="use_intra_process" value="$(var use_intra_process)"/>
       <arg name="use_multithread" value="$(var use_multithread)"/>

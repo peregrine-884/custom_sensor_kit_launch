@@ -19,7 +19,7 @@
   <arg name="use_intra_process"/>
   <arg name="use_multithread"/>
 
-  <include file="$(find-pkg-share common_whill_sensor_launch)/launch/nebula_node_container.launch.py">
+  <include file="$(find-pkg-share common_canedudev_rover_sensor_launch)/launch/nebula_node_container.launch.py">
     <arg name="min_range" value="$(var min_range)"/>
     <arg name="max_range" value="$(var max_range)"/>
     <arg name="cloud_min_angle" value="$(var cloud_min_angle)"/>
