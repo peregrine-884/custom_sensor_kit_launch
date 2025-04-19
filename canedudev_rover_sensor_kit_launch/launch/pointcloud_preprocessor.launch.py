@@ -25,7 +25,6 @@ from launch_ros.descriptions import ComposableNode
 
 
 def launch_setup(context, *args, **kwargs):
-    # 複数のLiDARセンサーから取得した点群データを同期し、1つの点群データに結合する
     concat_component = ComposableNode(
         package="autoware_pointcloud_preprocessor",
         plugin="autoware::pointcloud_preprocessor::PointCloudConcatenateDataSynchronizerComponent",

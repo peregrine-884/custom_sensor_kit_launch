@@ -4,7 +4,6 @@
   <arg name="max_range" default="250.0"/>
   <arg name="cloud_min_angle" default="0"/>
   <arg name="cloud_max_angle" default="360"/>
-  <arg name="model" default="VLP16"/>
   <arg name="return_mode" default="SingleStrongest"/>
 
   <arg name="host_ip"/>
@@ -12,6 +11,7 @@
   <arg name="data_port"/>
   <arg name="sensor_frame"/>
   <arg name="scan_phase"/>
+  <arg name="model"/>
   <arg name="launch_driver"/>
   <arg name="vehicle_info_param_file"/>
   <arg name="vehicle_mirror_param_file"/>

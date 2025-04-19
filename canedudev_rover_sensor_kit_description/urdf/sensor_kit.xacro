@@ -10,9 +10,7 @@
 
     <xacro:property name="sensor_kit_base_link" default="sensor_kit_base_link"/>
 
-<!-- =====================================================================
-base_link -> sensor_kit_base_link のTFを定義
-====================================================================== -->
+    <!-- base_link -> sensor_kit_base_link -->
     <joint name="${sensor_kit_base_link}_joint" type="fixed">
       <origin rpy="${roll} ${pitch} ${yaw}" xyz="${x} ${y} ${z}"/>
       <parent link="${parent}"/>
@@ -24,12 +22,21 @@ base_link -> sensor_kit_base_link のTFを定義
 
     <xacro:property name="calibration" value="${xacro.load_yaml('$(arg config_dir)/sensor_kit_calibration.yaml')}"/>
 
-<!-- =====================================================================
-sensor_kit_base_link -> velodyne_top_base_link -> velodyne_top のTFを定義
-velodyne_top_base_linkはlidarの一番下を原点とする座標系
-velodyne_topはレーザーを射出するところを原点とする座標系
-topic, hz, samples, gpuはgazeboで使用する値なので関係ない
-====================================================================== -->
+    <!-- LiDAR -->
+    <!-- ================================================================
+    TF Chain Definition
+      sensor_kit_base_link → velodyne_top_base_link → velodyne_top
+
+    Frame Details
+      - velodyne_top_base_link
+          Origin is located at the **bottom of the LiDAR sensor**
+      - velodyne_top
+          Origin is located at the **laser emission point**
+
+    Note
+      Parameters such as `topic`, `hz`, `samples`, and `gpu` are
+      **only used in Gazebo simulations** and are **not relevant here**.
+    ================================================================ -->
     <xacro:VLP-16 parent="sensor_kit_base_link" name="velodyne_top" topic="/velodyne_points" hz="10" samples="220" gpu="$(arg gpu)">
       <origin
         xyz="${calibration['sensor_kit_base_link']['velodyne_top_base_link']['x']}
@@ -41,10 +48,15 @@ topic, hz, samples, gpuはgazeboで使用する値なので関係ない
       />
     </xacro:VLP-16>
 
-<!-- =====================================================================
-sensor_kit_base_link -> xsens_imu_link のTFを定義
-fpsはgazeboで使用されるので関係ない
-====================================================================== -->
+    <!-- IMU -->
+    <!-- ================================================================
+    TF Definition
+      sensor_kit_base_link → xsens_imu_link
+
+    Note
+      The `fps` parameter is used only in Gazebo simulations and is
+      not relevant in this context.
+    ================================================================ -->
     <xacro:imu_macro
       name="xsens_imu"
       parent="sensor_kit_base_link"
